@@ -76,11 +76,12 @@ describe("Testing CrownFunding.sol", () => {
     it("Should be able to let the creator withdraw the collected fund", async () => {
       const campignId = 0;
       const campigns = await crownFunding.getCompaigns(campignId);
+      const { amountCollected } = campigns;
 
-      time.increase(3600);
+      await time.increase(3600);
       await expect(() =>
         crownFunding.connect(owner).withdrawDonation(campignId)
-      ).changeEtherBalance(owner, ethers.utils.parseEther("2"));
+      ).changeEtherBalance(owner, amountCollected);
     });
     // it("Should", async () => {});
   });
