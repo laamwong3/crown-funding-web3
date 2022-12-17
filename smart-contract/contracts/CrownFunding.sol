@@ -23,7 +23,7 @@ contract CrownFunding {
         bool isFundClaimed;
     }
 
-    uint256 public constant MIN_CAMPIGN_TIME = 15 minutes;
+    // uint256 public constant MIN_CAMPIGN_TIME = 15 minutes;
     uint256 public campignId;
     mapping(uint256 => Campign) public campigns;
     // each donator can donate mulitple campigns
@@ -34,10 +34,7 @@ contract CrownFunding {
         uint256 _deadline,
         string memory _campignDetails
     ) external {
-        require(
-            _deadline >= block.timestamp + MIN_CAMPIGN_TIME,
-            "Deadline is too short"
-        );
+        require(_deadline >= block.timestamp, "Deadline is too short");
         uint256 currentCampignId = campignId++;
 
         campigns[currentCampignId] = Campign({
@@ -74,6 +71,7 @@ contract CrownFunding {
         Campign storage campign = campigns[_campignId];
 
         require(msg.sender == campign.creator, "Not creator");
+        require(_campignId < campignId, "Invalid campign id");
         require(block.timestamp > campign.deadline, "Campign not ended");
         require(!campign.isFundClaimed, "Fund claimed");
 
@@ -94,5 +92,9 @@ contract CrownFunding {
         address _donator
     ) public view returns (uint) {
         return donatedAmount[_campignId][_donator];
+    }
+
+    function getCurrentBlockTime() public view returns (uint) {
+        return block.timestamp;
     }
 }
