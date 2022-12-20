@@ -1,29 +1,35 @@
 import { Button, Typography } from "antd";
 import React, { useEffect } from "react";
 import { useColorMode } from "../../../contexts/ColorMode";
+import { useNotification } from "../../../contexts/Notification";
+import useAuthenticate from "../../../hooks/useAuthenticate";
 
 const Header = () => {
   const { isDarkMode, setIsDarkMode } = useColorMode();
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.style.background = "black";
-    } else {
-      document.body.style.background = "white";
-    }
-  }, [isDarkMode]);
+  const { authenticate, isAuthenticated, logout, user } = useAuthenticate();
+  const { openNotification } = useNotification();
+  // console.log(isAuthenticated);
+  // console.log(user?.uri);
   return (
     <>
-      <button
-        onClick={() => {
-          setIsDarkMode(!isDarkMode);
-        }}
+      {/* <ConnectButton /> */}
+      <Button onClick={() => setIsDarkMode(!isDarkMode)}>toggle</Button>
+      {isAuthenticated && user ? (
+        <Button onClick={logout}>logout</Button>
+      ) : (
+        <Button onClick={authenticate}>connect</Button>
+      )}
+      <Button
+        onClick={() =>
+          openNotification({
+            description: "hello",
+            message: "yes",
+            type: "success",
+          })
+        }
       >
-        toggle
-      </button>
-      <Button>switch</Button>
-      <Button>switch</Button>
-      <Typography.Title>Nice</Typography.Title>
+        open notification
+      </Button>
     </>
   );
 };

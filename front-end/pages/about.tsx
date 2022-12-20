@@ -2,12 +2,13 @@ import { NextPage } from "next";
 import Link from "next/link";
 import React from "react";
 
-const Home: NextPage = () => {
+const About: NextPage = () => {
   return (
     <div>
-      <Link href={"/about"}>about</Link>
+      {" "}
+      <Link href={"/"}>Home</Link>
     </div>
   );
 };
 
-export default Home;
+export default About;

@@ -1,13 +1,26 @@
-import { Dispatch, ReactNode, SetStateAction } from "react";
-import type { DerivativeFunc } from "@ant-design/cssinjs";
-import type { SeedToken } from "antd/es/theme/internal";
-import type { MapToken } from "antd/es/theme/interface";
-
 export interface ColorModeProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export interface ColorModeContextProps {
   isDarkMode: boolean;
   setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface ContextManagerProps {
+  children: React.ReactNode;
+}
+
+export type NotificationType = "success" | "info" | "warning" | "error";
+export interface MessageTypes {
+  type: NotificationType;
+  message: string;
+  description: string;
+}
+
+export interface NotificationProps {
+  children: React.ReactNode;
+}
+export interface NotificationContextProps {
+  openNotification: ({ description, message, type }: MessageTypes) => void;
 }
