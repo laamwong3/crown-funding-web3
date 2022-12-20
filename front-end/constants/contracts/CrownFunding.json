@@ -1,0 +1,269 @@
+{
+  "address": "0xF4fE4132D564C9520Dbc4e9D043CA395a840bCC1",
+  "abi": [
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Claimed",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "campignId",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Created",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "campignId",
+          "indexed": false
+        },
+        {
+          "type": "address",
+          "name": "creator",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "targetAmount",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "deadline",
+          "indexed": false
+        },
+        {
+          "type": "string",
+          "name": "campignDetails",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Donated",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "campignId",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "donator",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "amount",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "campignId",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "campigns",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "name": "campignDetails"
+        },
+        {
+          "type": "address",
+          "name": "creator"
+        },
+        {
+          "type": "uint256",
+          "name": "targetFund"
+        },
+        {
+          "type": "uint256",
+          "name": "amountCollected"
+        },
+        {
+          "type": "uint256",
+          "name": "deadline"
+        },
+        {
+          "type": "bool",
+          "name": "isFundClaimed"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "createCampign",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_targetFund"
+        },
+        {
+          "type": "uint256",
+          "name": "_deadline"
+        },
+        {
+          "type": "string",
+          "name": "_campignDetails"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "donate",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_campignId"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "donatedAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256"
+        },
+        {
+          "type": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getCompaigns",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_compaignId"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "components": [
+            {
+              "type": "string",
+              "name": "campignDetails"
+            },
+            {
+              "type": "address",
+              "name": "creator"
+            },
+            {
+              "type": "uint256",
+              "name": "targetFund"
+            },
+            {
+              "type": "uint256",
+              "name": "amountCollected"
+            },
+            {
+              "type": "uint256",
+              "name": "deadline"
+            },
+            {
+              "type": "bool",
+              "name": "isFundClaimed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getCurrentBlockTime",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDonatedAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_campignId"
+        },
+        {
+          "type": "address",
+          "name": "_donator"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "withdrawDonation",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "_campignId"
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}
