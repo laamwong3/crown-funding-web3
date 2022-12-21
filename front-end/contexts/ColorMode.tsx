@@ -9,9 +9,9 @@ const ColorMode = ({ children }: ColorModeProps) => {
 
   useEffect(() => {
     if (isDarkMode) {
-      document.body.style.background = "black";
+      document.body.style.background = "#343a40";
     } else {
-      document.body.style.background = "white";
+      document.body.style.background = "#f8f9fa";
     }
   }, [isDarkMode]);
 
