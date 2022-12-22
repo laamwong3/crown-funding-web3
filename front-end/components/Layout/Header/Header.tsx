@@ -1,8 +1,15 @@
-import { Button, Typography } from "antd";
+import {
+  AppstoreAddOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { Button, Space, Switch, Tooltip, Typography } from "antd";
 import React, { useEffect } from "react";
 import { useColorMode } from "../../../contexts/ColorMode";
 import { useNotification } from "../../../contexts/Notification";
 import useAuthenticate from "../../../hooks/useAuthenticate";
+import s from "./Header.module.scss";
 
 const Header = () => {
   const { isDarkMode, setIsDarkMode } = useColorMode();
@@ -12,24 +19,35 @@ const Header = () => {
   // console.log(user?.uri);
   return (
     <>
-      {/* <ConnectButton /> */}
-      <Button onClick={() => setIsDarkMode(!isDarkMode)}>toggle</Button>
-      {isAuthenticated && user ? (
-        <Button onClick={logout}>logout</Button>
-      ) : (
-        <Button onClick={authenticate}>connect</Button>
-      )}
-      <Button
-        onClick={() =>
-          openNotification({
-            description: "hello",
-            message: "yes",
-            type: "success",
-          })
-        }
-      >
-        open notification
-      </Button>
+      <div className={s.navbar}>
+        <Space size={"large"}>
+          {isAuthenticated && user ? (
+            <>
+              <Tooltip title="Logout">
+                <LogoutOutlined className={s.icon} onClick={logout} />
+              </Tooltip>
+              <Tooltip title="Account">
+                <UserOutlined className={s.icon} />
+              </Tooltip>
+              <Tooltip title="Create Campaign">
+                <AppstoreAddOutlined className={s.icon} />
+              </Tooltip>
+            </>
+          ) : (
+            <Tooltip title="Wallet Login">
+              <LoginOutlined className={s.icon} onClick={authenticate} />
+            </Tooltip>
+          )}
+          <Tooltip title="Change Theme">
+            <Switch
+              checkedChildren="Dark"
+              unCheckedChildren="Light"
+              checked={isDarkMode}
+              onClick={() => setIsDarkMode(!isDarkMode)}
+            />
+          </Tooltip>
+        </Space>
+      </div>
     </>
   );
 };

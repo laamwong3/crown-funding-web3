@@ -1,0 +1,23 @@
+@use "../../../styles/abstract/variable" as *;
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  height: $navbar-height;
+  padding: 2rem;
+  display: flex;
+  justify-content: flex-end;
+
+  .icon {
+    font-size: 2rem;
+    color: blue;
+    transition: 0.25s ease-in-out;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}

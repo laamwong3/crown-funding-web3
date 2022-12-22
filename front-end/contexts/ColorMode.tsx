@@ -5,7 +5,7 @@ import { ColorModeContextProps, ColorModeProps } from ".";
 const ColorModeContext = createContext({} as ColorModeContextProps);
 
 const ColorMode = ({ children }: ColorModeProps) => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {

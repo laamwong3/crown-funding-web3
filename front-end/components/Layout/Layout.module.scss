@@ -1,0 +1,7 @@
+@use "../../styles/abstract/variable" as *;
+
+.center_page {
+  width: 100%;
+  max-width: $xxl;
+  margin: $navbar-height auto 0;
+}
