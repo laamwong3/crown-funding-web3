@@ -13,7 +13,14 @@ import s from "./Header.module.scss";
 
 const Header = () => {
   const { isDarkMode, setIsDarkMode } = useColorMode();
-  const { authenticate, isAuthenticated, logout, user } = useAuthenticate();
+  const {
+    authenticate,
+    isAuthenticated,
+    logout,
+    user,
+    isAuthenticating,
+    isLoggingOut,
+  } = useAuthenticate();
   const { openNotification } = useNotification();
   // console.log(isAuthenticated);
   // console.log(user?.uri);
@@ -24,7 +31,11 @@ const Header = () => {
           {isAuthenticated && user ? (
             <>
               <Tooltip title="Logout">
-                <LogoutOutlined className={s.icon} onClick={logout} />
+                <LogoutOutlined
+                  className={s.icon}
+                  onClick={logout}
+                  disabled={isLoggingOut}
+                />
               </Tooltip>
               <Tooltip title="Account">
                 <UserOutlined className={s.icon} />
@@ -35,7 +46,11 @@ const Header = () => {
             </>
           ) : (
             <Tooltip title="Wallet Login">
-              <LoginOutlined className={s.icon} onClick={authenticate} />
+              <LoginOutlined
+                className={s.icon}
+                onClick={authenticate}
+                disabled={isAuthenticating}
+              />
             </Tooltip>
           )}
           <Tooltip title="Change Theme">

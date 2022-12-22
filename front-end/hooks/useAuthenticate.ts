@@ -1,11 +1,15 @@
 import { useAuthRequestChallengeEvm } from "@moralisweb3/next";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { User } from ".";
 import { useNotification } from "../contexts/Notification";
 
 const useAuthenticate = () => {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const { connectAsync } = useConnect({
     connector: new InjectedConnector(),
     onError: (error) => {
@@ -37,6 +41,7 @@ const useAuthenticate = () => {
     }
 
     try {
+      setIsAuthenticating(true);
       const { account, chain } = await connectAsync();
       // console.log(provider);
       const challenge = await requestChallengeAsync({
@@ -61,19 +66,30 @@ const useAuthenticate = () => {
       });
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
   const logout = async () => {
+    setIsLoggingOut(true);
     await disconnectAsync();
     await signOut({ redirect: false });
+    setIsLoggingOut(false);
   };
 
   const isAuthenticated = data?.user ? true : false;
 
   const user = isAuthenticated ? (data?.user as User) : undefined;
 
-  return { authenticate, logout, isAuthenticated, user };
+  return {
+    authenticate,
+    logout,
+    isAuthenticated,
+    user,
+    isAuthenticating,
+    isLoggingOut,
+  };
 };
 
 export default useAuthenticate;
