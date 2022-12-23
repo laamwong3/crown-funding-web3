@@ -1,5 +1,12 @@
 @use "../../../styles/abstract/variable" as *;
 
+.account_content {
+  width: 375px;
+  text-align: center;
+  margin: 1rem;
+  // border: 1px solid grey;
+}
+
 .navbar {
   position: fixed;
   top: 0;
@@ -11,13 +18,15 @@
   display: flex;
   justify-content: flex-end;
 
-  .icon {
-    font-size: 2rem;
-    color: blue;
-    transition: 0.25s ease-in-out;
+  .button {
+    .icon {
+      // font-size: 1rem;
+      color: blue;
+      transition: 0.25s ease-in-out;
 
-    &:hover {
-      transform: scale(1.2);
+      &:hover {
+        transform: scale(2);
+      }
     }
   }
 }

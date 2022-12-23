@@ -3,3 +3,17 @@
 body {
   font-family: "Montserrat", "Courier New", Courier, monospace;
 }
+// system config
+:where(.css-dev-only-do-not-override-1hyej8k).ant-popover,
+:where(.css-dev-only-do-not-override-1caa7pf).ant-popover {
+  position: fixed;
+
+  .ant-popover-inner {
+    border-radius: 2rem;
+  }
+}
+
+:where(.css-dev-only-do-not-override-1hyej8k).ant-tooltip,
+:where(.css-dev-only-do-not-override-1caa7pf).ant-tooltip {
+  position: fixed;
+}

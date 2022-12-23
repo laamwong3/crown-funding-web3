@@ -19,7 +19,7 @@ const Layout = ({ children }: LayoutProps) => {
         <Header />
         <div className={s.center_page}>
           {children}
-          <Footer />
+          {/* <Footer /> */}
         </div>
       </ConfigProvider>
     </>
