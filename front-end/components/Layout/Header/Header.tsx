@@ -76,7 +76,7 @@ const Header = () => {
             <>
               <Tooltip title="Create Campaign" placement="bottom">
                 <Button
-                  onClick={() => push("/createCampaign")}
+                  onClick={() => push("/create-campaign")}
                   type="ghost"
                   size="large"
                   shape="round"
