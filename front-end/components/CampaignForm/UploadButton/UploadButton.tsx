@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Modal, Upload } from "antd";
 import type { RcFile, UploadProps } from "antd/es/upload";
 import type { UploadFile } from "antd/es/upload/interface";
+
+interface UploadButtonProps {
+  setImages: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -12,11 +16,15 @@ const getBase64 = (file: RcFile): Promise<string> =>
     reader.onerror = (error) => reject(error);
   });
 
-const UploadButton: React.FC = () => {
+const MAX_IMAGES = 5;
+
+const UploadButton = ({ setImages }: UploadButtonProps) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  useEffect(() => {}, [fileList]);
 
   const handleCancel = () => setPreviewOpen(false);
 
@@ -32,8 +40,21 @@ const UploadButton: React.FC = () => {
     );
   };
 
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    console.log(newFileList);
     setFileList(newFileList);
+
+    (async () => {
+      let tempFileList: string[] = [];
+      await Promise.all(
+        newFileList.map(async (file) => {
+          const base64 = await getBase64(file.originFileObj as RcFile);
+          tempFileList.push(base64);
+        })
+      );
+      setImages(tempFileList);
+    })();
+  };
 
   const uploadButton = (
     <div>
@@ -41,16 +62,20 @@ const UploadButton: React.FC = () => {
       <div style={{ marginTop: 8 }}>Upload</div>
     </div>
   );
+
   return (
     <>
       <Upload
         action=""
+        multiple
+        maxCount={MAX_IMAGES}
         listType="picture-card"
-        fileList={fileList}
+        // beforeUpload={beforeUpload}
+        // fileList={fileList}
         onPreview={handlePreview}
         onChange={handleChange}
       >
-        {fileList.length >= 1 ? null : uploadButton}
+        {fileList.length >= MAX_IMAGES ? null : uploadButton}
       </Upload>
       <Modal
         open={previewOpen}
