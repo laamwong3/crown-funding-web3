@@ -41,7 +41,7 @@ const UploadButton = ({ setImages }: UploadButtonProps) => {
   };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
-    console.log(newFileList);
+    // console.log(newFileList);
     setFileList(newFileList);
 
     (async () => {
