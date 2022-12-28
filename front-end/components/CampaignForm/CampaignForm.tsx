@@ -3,11 +3,16 @@ import React, { useState } from "react";
 import { useColorMode } from "../../contexts/ColorMode";
 import s from "./CampaignForm.module.scss";
 import UploadButton from "./UploadButton/UploadButton";
-import { useEvmUploadFolder, useEvmNativeBalance } from "@moralisweb3/next";
 import { useNotification } from "../../contexts/Notification";
 import useAuthenticate from "../../hooks/useAuthenticate";
-
 import { IpfsResponse } from ".";
+import crownFunding from "../../constants/contracts/CrownFunding.json";
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
+import { useDebounce } from "usehooks-ts";
 
 const CampaignForm = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -15,10 +20,29 @@ const CampaignForm = () => {
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState(0);
   const [endDate, setEndDate] = useState(0);
+  const [campaignDetails, setCampaignDetails] = useState<string>("");
   const { user } = useAuthenticate();
 
+  const debouncedTargetAmount = useDebounce(targetAmount);
+  const debouncedEndDate =
+    endDate === 0 ? useDebounce(new Date().getTime()) : useDebounce(endDate);
+  const debouncedCampaignDetails = useDebounce(campaignDetails);
+
+  const { config } = usePrepareContractWrite({
+    address: crownFunding.address,
+    abi: crownFunding.abi,
+    functionName: "createCampign",
+    chainId: user?.chainId,
+    args: [debouncedTargetAmount, debouncedEndDate, debouncedCampaignDetails],
+  });
+  // console.log(data);
+  const { write } = useContractWrite(config);
   const { isDarkMode } = useColorMode();
   const { openNotification } = useNotification();
+
+  console.log(user?.address);
+
+  const toSolidityTime = (time: number) => Math.floor(time / 1000);
 
   const showErrorMessage = (description: string) => {
     openNotification({
@@ -45,65 +69,71 @@ const CampaignForm = () => {
       showErrorMessage("Target amount cannot be 0");
       return false;
     }
-    if (endDate <= new Date().getTime()) {
+    if (endDate <= toSolidityTime(new Date().getTime())) {
       showErrorMessage("Invalid date, end date should be in the future");
       return false;
     }
     return true;
   };
 
-  const uploadToIpfs = async () => {
-    // if (!isValidInput()) return;
-    // upload images
-    let imagesAbi: { path: string; content: string }[] = [];
-    await Promise.all(
-      images.map((image, index) => {
-        imagesAbi.push({
-          path: `images/${index}.png`,
-          content: image,
-        });
-      })
-    );
-    const imagesResponse = await fetch("/api/ipfs", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(imagesAbi),
-    });
-    const imagesIpfs = (await imagesResponse.json()) as IpfsResponse[];
-    //upload metadata
-    let resolvedIpfsImages: string[] = [];
-    await Promise.all(
-      imagesIpfs.map((image) => {
-        resolvedIpfsImages.push(image.path);
-      })
-    );
-    let metadataContent = {
-      title,
-      description,
-      images: resolvedIpfsImages,
-    };
+  const uploadToIpfsAndBlockchain = async () => {
+    try {
+      if (!isValidInput()) return;
+      // upload images
+      let imagesAbi: { path: string; content: string }[] = [];
+      await Promise.all(
+        images.map((image, index) => {
+          imagesAbi.push({
+            path: `images/${index}.png`,
+            content: image,
+          });
+        })
+      );
+      const imagesResponse = await fetch("/api/ipfs", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(imagesAbi),
+      });
+      const imagesIpfs = (await imagesResponse.json()) as IpfsResponse[];
+      //upload metadata
+      let resolvedIpfsImages: string[] = [];
+      await Promise.all(
+        imagesIpfs.map((image) => {
+          resolvedIpfsImages.push(image.path);
+        })
+      );
+      let metadataContent = {
+        title,
+        description,
+        images: resolvedIpfsImages,
+      };
 
-    let metadataAbi: { path: string; content: string }[] = [
-      {
-        path: "campaign.json",
-        //@ts-ignore
-        content: metadataContent,
-      },
-    ];
-    // console.log(metadataAbi);
-    const metadataResponse = await fetch("/api/ipfs", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(metadataAbi),
-    });
-    const metadataIpfs = (await metadataResponse.json()) as IpfsResponse[];
-    console.log(metadataIpfs);
+      let metadataAbi: { path: string; content: string }[] = [
+        {
+          path: "campaign.json",
+          // @ts-ignore
+          content: metadataContent,
+        },
+      ];
+      // console.log(metadataAbi);
+      const metadataResponse = await fetch("/api/ipfs", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(metadataAbi),
+      });
+      const metadataIpfs = (await metadataResponse.json()) as IpfsResponse[];
+      setCampaignDetails(metadataIpfs[0].path);
+
+      write?.();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -164,12 +194,12 @@ const CampaignForm = () => {
             style={{ width: "100%" }}
             showTime
             onChange={(value, date) => {
-              setEndDate(new Date(date).getTime());
+              setEndDate(toSolidityTime(new Date(date).getTime()));
             }}
           />
         </div>
         <div className={s.form_button}>
-          <Button size="large" onClick={uploadToIpfs}>
+          <Button size="large" onClick={uploadToIpfsAndBlockchain}>
             Create Campaign
           </Button>
         </div>
