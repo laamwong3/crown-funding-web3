@@ -1,5 +1,5 @@
 import { Button, DatePicker, Input, InputNumber, Typography } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useColorMode } from "../../contexts/ColorMode";
 import s from "./CampaignForm.module.scss";
 import UploadButton from "./UploadButton/UploadButton";
@@ -12,35 +12,45 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { useDebounce } from "usehooks-ts";
+import { utils } from "ethers";
 
 const CampaignForm = () => {
   const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState(0);
-  const [endDate, setEndDate] = useState(0);
-  const [campaignDetails, setCampaignDetails] = useState<string>("");
+  const [endDate, setEndDate] = useState(new Date().getTime());
+  const [campaignDetails, setCampaignDetails] = useState("");
+  const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false);
+  const [hasUploadedToIpfs, setHasUploadedToIpfs] = useState(false);
   const { user } = useAuthenticate();
 
-  const debouncedTargetAmount = useDebounce(targetAmount);
-  const debouncedEndDate =
-    endDate === 0 ? useDebounce(new Date().getTime()) : useDebounce(endDate);
-  const debouncedCampaignDetails = useDebounce(campaignDetails);
-
-  const { config } = usePrepareContractWrite({
+  const {
+    config,
+    isFetched,
+    isLoading: isPreparingContract,
+    isSuccess,
+  } = usePrepareContractWrite({
     address: crownFunding.address,
     abi: crownFunding.abi,
     functionName: "createCampign",
     chainId: user?.chainId,
-    args: [debouncedTargetAmount, debouncedEndDate, debouncedCampaignDetails],
+    args: [utils.parseEther(targetAmount.toString()), endDate, campaignDetails],
   });
-  // console.log(data);
-  const { write } = useContractWrite(config);
+  console.log(isFetched);
+  const {
+    write,
+    data,
+    isLoading: isWritingToBlockchain,
+  } = useContractWrite(config);
+  const { isLoading: isWaitingForConfirmation, isFetched: isConfirmed } =
+    useWaitForTransaction({
+      hash: data?.hash,
+      confirmations: 1,
+    });
+
   const { isDarkMode } = useColorMode();
   const { openNotification } = useNotification();
-
-  console.log(user?.address);
 
   const toSolidityTime = (time: number) => Math.floor(time / 1000);
 
@@ -77,8 +87,11 @@ const CampaignForm = () => {
   };
 
   const uploadToIpfsAndBlockchain = async () => {
+    if (!isValidInput()) return;
+
     try {
-      if (!isValidInput()) return;
+      setHasUploadedToIpfs(false);
+      setIsUploadingToIpfs(true);
       // upload images
       let imagesAbi: { path: string; content: string }[] = [];
       await Promise.all(
@@ -98,6 +111,7 @@ const CampaignForm = () => {
         body: JSON.stringify(imagesAbi),
       });
       const imagesIpfs = (await imagesResponse.json()) as IpfsResponse[];
+      // console.log(imagesIpfs);
       //upload metadata
       let resolvedIpfsImages: string[] = [];
       await Promise.all(
@@ -129,12 +143,27 @@ const CampaignForm = () => {
       });
       const metadataIpfs = (await metadataResponse.json()) as IpfsResponse[];
       setCampaignDetails(metadataIpfs[0].path);
+      setHasUploadedToIpfs(true);
 
-      write?.();
+      console.log("ready");
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsUploadingToIpfs(false);
     }
   };
+
+  useEffect(() => {
+    if (hasUploadedToIpfs && isFetched) {
+      write?.();
+    }
+  }, [isFetched, hasUploadedToIpfs]);
+
+  useEffect(() => {
+    if (isConfirmed) {
+      setHasUploadedToIpfs(false);
+    }
+  }, [isConfirmed]);
 
   return (
     <div className={s.wrapper}>
