@@ -13,6 +13,8 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { utils } from "ethers";
+import LoadingOverlay from "./LoadingOverlay/LoadingOverlay";
+import dayjs from "dayjs";
 
 const CampaignForm = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -21,33 +23,33 @@ const CampaignForm = () => {
   const [targetAmount, setTargetAmount] = useState(0);
   const [endDate, setEndDate] = useState(new Date().getTime());
   const [campaignDetails, setCampaignDetails] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false);
   const [hasUploadedToIpfs, setHasUploadedToIpfs] = useState(false);
   const { user } = useAuthenticate();
 
-  const {
-    config,
-    isFetched,
-    isLoading: isPreparingContract,
-    isSuccess,
-  } = usePrepareContractWrite({
+  const { config, isFetched: isPrepared } = usePrepareContractWrite({
     address: crownFunding.address,
     abi: crownFunding.abi,
     functionName: "createCampign",
     chainId: user?.chainId,
     args: [utils.parseEther(targetAmount.toString()), endDate, campaignDetails],
   });
-  console.log(isFetched);
+
   const {
     write,
     data,
     isLoading: isWritingToBlockchain,
+    error: writingError,
   } = useContractWrite(config);
-  const { isLoading: isWaitingForConfirmation, isFetched: isConfirmed } =
-    useWaitForTransaction({
-      hash: data?.hash,
-      confirmations: 1,
-    });
+  const {
+    isLoading: isWaitingForConfirmation,
+    isFetched: isConfirmed,
+    error: confirmationError,
+  } = useWaitForTransaction({
+    hash: data?.hash,
+    confirmations: 2,
+  });
 
   const { isDarkMode } = useColorMode();
   const { openNotification } = useNotification();
@@ -90,6 +92,7 @@ const CampaignForm = () => {
     if (!isValidInput()) return;
 
     try {
+      setIsUploading(true);
       setHasUploadedToIpfs(false);
       setIsUploadingToIpfs(true);
       // upload images
@@ -148,22 +151,51 @@ const CampaignForm = () => {
       console.log("ready");
     } catch (error) {
       console.log(error);
+      setIsUploading(false);
     } finally {
       setIsUploadingToIpfs(false);
     }
   };
+  const resetForm = () => {
+    setImages([]);
+    setTitle("");
+    setDescription("");
+    setTargetAmount(0);
+    setEndDate(new Date().getTime());
+  };
 
   useEffect(() => {
-    if (hasUploadedToIpfs && isFetched) {
+    if (hasUploadedToIpfs && isPrepared) {
       write?.();
     }
-  }, [isFetched, hasUploadedToIpfs]);
+  }, [isPrepared, hasUploadedToIpfs]);
 
   useEffect(() => {
     if (isConfirmed) {
       setHasUploadedToIpfs(false);
+      setIsUploading(false);
+      resetForm();
     }
   }, [isConfirmed]);
+
+  useEffect(() => {
+    if (writingError || confirmationError) {
+      setIsUploading(false);
+    }
+  }, [writingError, confirmationError]);
+
+  const getLoadingStatus = () => {
+    if (isUploadingToIpfs) {
+      return "Uploading to IPFS";
+    }
+    if (isWritingToBlockchain) {
+      return "Writing to blockchain";
+    }
+    if (isWaitingForConfirmation) {
+      return "Waiting for confirmation";
+    }
+    return "";
+  };
 
   return (
     <div className={s.wrapper}>
@@ -175,6 +207,7 @@ const CampaignForm = () => {
             : { boxShadow: "0 0 100px black" }
         }
       >
+        {isUploading && <LoadingOverlay title={getLoadingStatus()} />}
         <Typography.Title level={1} style={{ textAlign: "center" }}>
           Create Campign
         </Typography.Title>
@@ -183,7 +216,7 @@ const CampaignForm = () => {
           <Typography.Title level={3}>
             Campaign Image (Max 5 Images)
           </Typography.Title>
-          <UploadButton setImages={setImages} />
+          <UploadButton setImages={setImages} images={images} />
         </div>
         <div className={s.form_item}>
           <Typography.Title level={3}>Title:</Typography.Title>
@@ -192,6 +225,7 @@ const CampaignForm = () => {
             autoSize
             // value={title}
             onChange={(e) => setTitle(e.target.value)}
+            value={title}
           />
         </div>
         <div className={s.form_item}>
@@ -203,6 +237,7 @@ const CampaignForm = () => {
             maxLength={1000}
             // value={description}
             onChange={(e) => setDescription(e.target.value)}
+            value={description}
           />
         </div>
         <div className={s.form_item}>
@@ -215,16 +250,20 @@ const CampaignForm = () => {
             onChange={(e) => {
               e && setTargetAmount(e);
             }}
+            value={targetAmount}
           />
         </div>
         <div className={s.form_item}>
           <Typography.Title level={3}>End Date and Time:</Typography.Title>
           <DatePicker
             style={{ width: "100%" }}
-            showTime
+            disabledDate={(current) => {
+              return current && current < dayjs().endOf("days");
+            }}
             onChange={(value, date) => {
               setEndDate(toSolidityTime(new Date(date).getTime()));
             }}
+            showToday
           />
         </div>
         <div className={s.form_button}>

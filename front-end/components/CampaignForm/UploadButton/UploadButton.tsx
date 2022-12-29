@@ -6,6 +6,7 @@ import type { UploadFile } from "antd/es/upload/interface";
 
 interface UploadButtonProps {
   setImages: React.Dispatch<React.SetStateAction<string[]>>;
+  images: string[];
 }
 
 const getBase64 = (file: RcFile): Promise<string> =>
@@ -18,13 +19,11 @@ const getBase64 = (file: RcFile): Promise<string> =>
 
 const MAX_IMAGES = 5;
 
-const UploadButton = ({ setImages }: UploadButtonProps) => {
+const UploadButton = ({ setImages, images }: UploadButtonProps) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-
-  useEffect(() => {}, [fileList]);
 
   const handleCancel = () => setPreviewOpen(false);
 
