@@ -6,13 +6,13 @@ import UploadButton from "./UploadButton/UploadButton";
 import { useNotification } from "../../contexts/Notification";
 import useAuthenticate from "../../hooks/useAuthenticate";
 import { IpfsResponse } from ".";
-import crownFunding from "../../constants/contracts/CrownFunding.json";
+import { abi, address } from "../../constants/contracts/crownFunding";
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import LoadingOverlay from "./LoadingOverlay/LoadingOverlay";
 import dayjs from "dayjs";
 
@@ -29,11 +29,15 @@ const CampaignForm = () => {
   const { user } = useAuthenticate();
 
   const { config, isFetched: isPrepared } = usePrepareContractWrite({
-    address: crownFunding.address,
-    abi: crownFunding.abi,
+    address: address,
+    abi: abi,
     functionName: "createCampign",
     chainId: user?.chainId,
-    args: [utils.parseEther(targetAmount.toString()), endDate, campaignDetails],
+    args: [
+      utils.parseEther(targetAmount.toString()),
+      BigNumber.from(endDate),
+      campaignDetails,
+    ],
   });
 
   const {
