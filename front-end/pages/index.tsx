@@ -5,8 +5,13 @@ import {
   useContractInfiniteReads,
   paginatedIndexesConfig,
   useContractReads,
+  useContractRead,
+  useContractEvent,
+  useWatchPendingTransactions,
 } from "wagmi";
 import { abi, address } from "../constants/contracts/crownFunding";
+import useAuthenticate from "../hooks/useAuthenticate";
+import { bsc, bscTestnet } from "wagmi/chains";
 
 interface CampaignTypes {
   campignDetails: string;
@@ -24,16 +29,40 @@ const crownFundingContract = {
 
 const Home: NextPage = () => {
   const [totalItems, setTotalItems] = useState(0);
-  const [campaigns, setCampaigns] = useState<CampaignTypes[] | undefined>([]);
+  const [campaignDetails, setCampaignDetails] = useState<CampaignTypes[]>([]);
+
+  const { isAuthenticated } = useAuthenticate();
+
+  useContractEvent({
+    ...crownFundingContract,
+    eventName: "Created",
+    chainId: bscTestnet.id,
+    listener: (a1, a2, a3, a4, a5) => {
+      console.log(a1);
+      console.log(a2);
+      console.log(a3);
+      console.log(a4);
+      console.log(a5);
+    },
+  });
+
+  useContractRead({
+    ...crownFundingContract,
+    functionName: "campignId",
+    watch: true,
+    chainId: bscTestnet.id,
+    onSuccess: (id) => setTotalItems(id.toNumber()),
+  });
 
   const { refetch, data } = useContractInfiniteReads({
-    cacheKey: "funding",
+    cacheKey: "test",
     ...paginatedIndexesConfig(
       (index) => [
         {
           ...crownFundingContract,
           functionName: "getCompaigns",
           args: [BigNumber.from(index)] as const,
+          chainId: bscTestnet.id,
         },
       ],
       {
@@ -42,30 +71,20 @@ const Home: NextPage = () => {
         direction: "increment",
       }
     ),
+    onSuccess: (data) => setCampaignDetails(data.pages[0] as CampaignTypes[]),
   });
-
-  console.log(data?.pages);
+  // console.log(campaignId?.toNumber());
+  // console.log(campaignDetails);
+  // console.log(data?.pages);
 
   useEffect(() => {
-    refetch();
+    if (totalItems !== 0) {
+      refetch();
+    }
   }, [totalItems]);
-
-  // console.log(data?.pages[0]);
-  // if (campaigns) console.log(campaigns[0].creator);
-  // useEffect(() => {
-  //   (async () => {
-  //     const response = await refetch();
-  //     // console.log(response.data?.pages[0][0] as CampaignTypes);
-
-  //     setCampaigns(response.data?.pages[0] as CampaignTypes[]);
-  //   })();
-  // }, [totalItems]);
 
   return (
     <div>
-      <button onClick={() => setTotalItems((prev) => prev + 1)}>
-        fetch more
-      </button>
       {/* {data?.pages.map((d, index) => (
         <p key={index}>{d[0].creator}</p>
       ))} */}
