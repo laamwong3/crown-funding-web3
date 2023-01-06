@@ -8,74 +8,62 @@ import {
 } from "wagmi";
 import { abi, address } from "../constants/contracts/crownFunding";
 
+interface CampaignTypes {
+  campignDetails: string;
+  creator: `0x${string}`;
+  targetFund: BigNumber;
+  amountCollected: BigNumber;
+  deadline: BigNumber;
+  isFundClaimed: boolean;
+}
+
 const crownFundingContract = {
   abi,
   address,
 };
 
 const Home: NextPage = () => {
-  const [items, setItems] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [campaigns, setCampaigns] = useState<CampaignTypes[] | undefined>([]);
 
-  const { data: contractinfo, refetch } = useContractReads({
-    contracts: [
+  const { refetch, data } = useContractInfiniteReads({
+    cacheKey: "funding",
+    ...paginatedIndexesConfig(
+      (index) => [
+        {
+          ...crownFundingContract,
+          functionName: "getCompaigns",
+          args: [BigNumber.from(index)] as const,
+        },
+      ],
       {
-        ...crownFundingContract,
-        functionName: "campignId",
-      },
-    ],
+        start: 0,
+        perPage: totalItems,
+        direction: "increment",
+      }
+    ),
   });
 
-  // console.log(contractinfo?.[0].toNumber());
+  console.log(data?.pages);
 
-  const { data, hasNextPage, fetchNextPage } = useContractInfiniteReads({
-    cacheKey: "a",
-    contracts: (param = 0) => [
-      {
-        ...crownFundingContract,
-        functionName: "getCompaigns",
-        args: [BigNumber.from(param)] as const,
-      },
-    ],
-    getNextPageParam: (lastPage, allPages) => {
-      // console.log(allPages.length);
-      return allPages.length + 1;
-    },
-  });
+  useEffect(() => {
+    refetch();
+  }, [totalItems]);
 
-  console.log(data);
-  // const reload = async () => {
-  //   const result = await refetch();
-  //   // console.log(result.data?.[0].toNumber());
-  // };
-  // const { data, fetchNextPage } = useContractInfiniteReads({
-  //   cacheKey: "funding",
-  //   ...paginatedIndexesConfig(
-  //     (index) => [
-  //       {
-  //         ...crownFundingContract,
-  //         functionName: "getCompaigns",
-  //         args: [BigNumber.from(index)] as const,
-  //       },
-  //     ],
-  //     {
-  //       start: 0,
-  //       perPage: contractinfo?.[0].toNumber() ?? 0,
-  //       direction: "increment",
-  //     }
-  //   ),
-  // });
-  // console.log(contractinfo?.[0].toNumber());
-  // console.log(data?.pages[0][0]);
+  // console.log(data?.pages[0]);
+  // if (campaigns) console.log(campaigns[0].creator);
+  // useEffect(() => {
+  //   (async () => {
+  //     const response = await refetch();
+  //     // console.log(response.data?.pages[0][0] as CampaignTypes);
+
+  //     setCampaigns(response.data?.pages[0] as CampaignTypes[]);
+  //   })();
+  // }, [totalItems]);
+
   return (
     <div>
-      <button
-        onClick={async () => {
-          console.log(hasNextPage);
-          if (hasNextPage) {
-            await fetchNextPage();
-          }
-        }}
-      >
+      <button onClick={() => setTotalItems((prev) => prev + 1)}>
         fetch more
       </button>
       {/* {data?.pages.map((d, index) => (
