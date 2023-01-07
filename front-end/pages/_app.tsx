@@ -18,6 +18,10 @@ const { provider, webSocketProvider } = configureChains(
         http: process.env.NEXT_PUBLIC_QUICKNODE_RPC_HTTP ?? "",
         webSocket: process.env.NEXT_PUBLIC_QUICKNODE_RPC_WSS,
       }),
+      priority: 1,
+    }),
+    publicProvider({
+      priority: 0,
     }),
   ]
 );
