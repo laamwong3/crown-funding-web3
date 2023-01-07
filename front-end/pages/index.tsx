@@ -33,18 +33,23 @@ const Home: NextPage = () => {
 
   const { isAuthenticated } = useAuthenticate();
 
-  useContractEvent({
-    ...crownFundingContract,
-    eventName: "Created",
-    chainId: bscTestnet.id,
-    listener: (a1, a2, a3, a4, a5) => {
-      console.log(a1);
-      console.log(a2);
-      console.log(a3);
-      console.log(a4);
-      console.log(a5);
-    },
-  });
+  // useContractEvent({
+  //   ...crownFundingContract,
+  //   eventName: "Created",
+  //   chainId: bscTestnet.id,
+  //   listener: (a1, a2, a3, a4, a5) => {
+  //     console.log(a1);
+  //     console.log(a2);
+  //     console.log(a3);
+  //     console.log(a4);
+  //     console.log(a5);
+  //   },
+  // });
+
+  // useWatchPendingTransactions({
+  //   chainId: bscTestnet.id,
+  //   listener: (tx) => console.log(tx),
+  // });
 
   useContractRead({
     ...crownFundingContract,

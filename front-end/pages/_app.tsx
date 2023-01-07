@@ -6,12 +6,20 @@ import ColorMode from "../contexts/ColorMode";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { bsc, bscTestnet } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { SessionProvider } from "next-auth/react";
 import ContextManager from "../contexts/ContextManager";
 
 const { provider, webSocketProvider } = configureChains(
   [bsc, bscTestnet],
-  [publicProvider()]
+  [
+    jsonRpcProvider({
+      rpc: () => ({
+        http: process.env.NEXT_PUBLIC_QUICKNODE_RPC_HTTP ?? "",
+        webSocket: process.env.NEXT_PUBLIC_QUICKNODE_RPC_WSS,
+      }),
+    }),
+  ]
 );
 
 const client = createClient({
