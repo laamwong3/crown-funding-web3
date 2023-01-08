@@ -1,3 +1,8 @@
+export type FetcherArg = [
+  input: RequestInfo | URL,
+  init?: RequestInit | undefined
+];
+
 export interface User {
   id: string;
   domain: string;

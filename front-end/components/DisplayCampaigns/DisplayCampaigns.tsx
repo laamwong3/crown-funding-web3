@@ -10,6 +10,7 @@ import {
 import { bsc, bscTestnet } from "wagmi/chains";
 import { BigNumber } from "ethers";
 import CampaignCard from "./CampaignCard/CampaignCard";
+import { Col, Row } from "antd";
 
 const crownFundingContract = {
   abi,
@@ -58,11 +59,13 @@ const DisplayCampaigns = () => {
 
   return (
     <div className={s.wrapper}>
-      <div className={s.cards}>
+      <Row gutter={[16, 16]}>
         {campaignDetails.map((details, index) => (
-          <CampaignCard key={index} details={details} />
+          <Col key={index} xs={24} sm={12} md={8} lg={8} xl={6} xxl={6}>
+            <CampaignCard details={details} />
+          </Col>
         ))}
-      </div>
+      </Row>
     </div>
   );
 };
