@@ -60,7 +60,7 @@ const DisplayCampaigns = () => {
     <div className={s.wrapper}>
       <div className={s.cards}>
         {campaignDetails.map((details, index) => (
-          <CampaignCard key={index} />
+          <CampaignCard key={index} details={details} />
         ))}
       </div>
     </div>

@@ -6,3 +6,7 @@ export interface CampaignTypes {
   deadline: BigNumber;
   isFundClaimed: boolean;
 }
+
+export interface CampaignCardProps {
+  details: CampaignTypes;
+}
