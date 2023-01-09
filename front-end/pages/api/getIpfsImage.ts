@@ -10,9 +10,12 @@ export default async function handler(
     if (req.method === "POST") {
       const params = req.body;
 
-      if (!Array.isArray(params)) {
-        return res.status(422).json({ message: "Invalid data" });
-      }
+      console.log(params);
+      // if (!Array.isArray(params)) {
+      //   return res.status(422).json({ message: "Invalid body" });
+      // }
+
+      res.status(200).json(params);
       // const data = await Promise.all();
       //   res.status(200).json(response);
     } else {
