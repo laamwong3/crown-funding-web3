@@ -8,12 +8,12 @@ export default async function handler(
 ) {
   try {
     if (req.method === "POST") {
-      const abi = req.body;
+      const params = req.body;
 
-      if (!Array.isArray(abi)) {
+      if (!Array.isArray(params)) {
         return res.status(422).json({ message: "Invalid data" });
       }
-      const data = await Promise.all(abi);
+      // const data = await Promise.all();
       //   res.status(200).json(response);
     } else {
       return res.status(400).json({ message: "Bad Request" });
