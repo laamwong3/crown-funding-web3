@@ -1,5 +1,8 @@
 .card {
-  background-color: dodgerblue;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 10px black;
+  border: 1px solid black;
   color: white;
   padding: 1rem;
   height: 40rem;
