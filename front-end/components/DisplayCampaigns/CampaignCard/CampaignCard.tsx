@@ -1,27 +1,23 @@
 import { Button, Carousel, Input, Typography } from "antd";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { CampaignCardProps, CampaignTypes } from "..";
+import { CampaignCardProps, CampaignInfo, CampaignTypes } from "..";
 import useApiGet from "../../../hooks/useApiGet";
 import useApiPost from "../../../hooks/useApiPost";
 import s from "./CampaignCard.module.scss";
 import noImage from "../../../assets/no_image.jpeg";
 import { BigNumber, utils } from "ethers";
-import { usePrepareContractWrite } from "wagmi";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { address, abi } from "../../../constants/contracts/crownFunding";
-
-interface CampaignInfo {
-  title: string;
-  description: string;
-  images: string[];
-}
+import useAuthenticate from "../../../hooks/useAuthenticate";
 
 // interface ImgMeta {
 //   width: number;
 //   height: number;
 // }
 
-const CampaignCard = ({ details }: CampaignCardProps) => {
+const CampaignCard = ({ details, index }: CampaignCardProps) => {
+  const { user } = useAuthenticate();
   const [donateAmount, setDonateAmount] = useState("0");
   const [campaignInfo, setCampaignInfo] = useState<CampaignInfo>({
     description: "",
@@ -29,11 +25,21 @@ const CampaignCard = ({ details }: CampaignCardProps) => {
     title: "",
   });
 
-  const {} = usePrepareContractWrite({
-    address,
-    abi,
+  const { config, isFetched, data } = usePrepareContractWrite({
+    address: address,
+    abi: abi,
+    chainId: user?.chainId,
     functionName: "donate",
+    args: [BigNumber.from(index)],
+    overrides: {
+      value: donateAmount.length !== 0 ? utils.parseEther(donateAmount) : 0,
+    },
+    // onSuccess: (data) => console.log(data),
+    // onError: (err) => console.log(err),
   });
+
+  const { write } = useContractWrite(config);
+  // console.log(write);
   // console.log(details.amountCollected)
   // const [imgMeta, setImgMeta] = useState<ImgMeta[]>([]);
 
@@ -58,7 +64,7 @@ const CampaignCard = ({ details }: CampaignCardProps) => {
       const data: CampaignInfo = await response.json();
       setCampaignInfo(data);
     };
-    fetchDetails();
+    if (details.campignDetails) fetchDetails();
   }, []);
   // console.log(campaignInfo.images);
   return (
@@ -111,7 +117,8 @@ const CampaignCard = ({ details }: CampaignCardProps) => {
         <Button
           type="primary"
           style={{ marginTop: "1rem" }}
-          onClick={() => alert(donateAmount)}
+          disabled={!write}
+          onClick={() => write?.()}
         >
           FUND THIS PROJECT
         </Button>

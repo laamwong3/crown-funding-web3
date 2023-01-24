@@ -9,4 +9,11 @@ export interface CampaignTypes {
 
 export interface CampaignCardProps {
   details: CampaignTypes;
+  index: number;
+}
+
+export interface CampaignInfo {
+  title: string;
+  description: string;
+  images: string[];
 }

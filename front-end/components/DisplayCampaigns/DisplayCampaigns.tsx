@@ -62,7 +62,7 @@ const DisplayCampaigns = () => {
       <Row gutter={[16, 16]}>
         {campaignDetails.map((details, index) => (
           <Col key={index} xs={24} sm={12} md={8} lg={8} xl={6} xxl={6}>
-            <CampaignCard details={details} />
+            <CampaignCard details={details} index={index} />
           </Col>
         ))}
       </Row>
