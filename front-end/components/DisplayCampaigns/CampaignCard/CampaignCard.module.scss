@@ -19,4 +19,17 @@
     border: 1px solid black;
     border-radius: 2rem;
   }
+  .content {
+    text-align: center;
+    // background: black;
+    padding: 1rem;
+    border-bottom: 1px solid grey;
+  }
+  .fund_button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+  }
 }
