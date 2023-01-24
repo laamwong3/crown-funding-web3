@@ -12,14 +12,34 @@ interface CampaignInfo {
   images: string[];
 }
 
+// interface ImgMeta {
+//   width: number;
+//   height: number;
+// }
+
 const CampaignCard = ({ details }: CampaignCardProps) => {
   const [campaignInfo, setCampaignInfo] = useState<CampaignInfo>({
     description: "",
     images: [],
     title: "",
   });
+  // const [imgMeta, setImgMeta] = useState<ImgMeta[]>([]);
 
-  console.log(campaignInfo.title);
+  // useEffect(() => {
+  //   const getMeta = () => {
+  //     let tempimgArr: ImgMeta[] = [];
+  //     campaignInfo.images.map(async (image) => {
+  //       const img = document.createElement("img");
+  //       img.src = image;
+  //       await img.decode();
+  //       tempimgArr.push({ width: img.naturalWidth, height: img.naturalHeight });
+  //     });
+  //     setImgMeta(tempimgArr);
+  //   };
+
+  //   getMeta();
+  // }, [campaignInfo]);
+
   useEffect(() => {
     const fetchDetails = async () => {
       const response = await fetch(details.campignDetails);
@@ -33,15 +53,17 @@ const CampaignCard = ({ details }: CampaignCardProps) => {
     <div className={s.card}>
       <div className={s.carousel}>
         <Carousel effect="fade" autoplay>
-          {campaignInfo.images.map((image, index) => (
-            <Image
-              alt="image"
-              src={image}
-              key={index}
-              width={128}
-              height={128}
-            />
-          ))}
+          {campaignInfo.images.map((image, index) => {
+            return (
+              <Image
+                alt="image"
+                src={image}
+                key={index}
+                width={512}
+                // height={256}
+              />
+            );
+          })}
         </Carousel>
       </div>
     </div>
